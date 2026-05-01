@@ -5,10 +5,8 @@ import { Hand } from "lucide-react"
 import { useStore } from "@/hooks/useStore"
 import { detectRaisedFingers } from "@/lib/gesture/fingers"
 
-// Type‑only for editor hints (no runtime import)
 declare global {
   interface Window {
-    Camera: any
     Hands: any
   }
 }
@@ -18,7 +16,7 @@ export default function CameraPanel() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const { setGesture } = useStore()
   const handsInstance = useRef<any>(null)
-  const cameraInstance = useRef<any>(null)
+  const streamRef = useRef<MediaStream | null>(null)
 
   useEffect(() => {
     const video = videoRef.current
@@ -37,21 +35,27 @@ export default function CameraPanel() {
 
     const setup = async () => {
       try {
-        // Load scripts from CDN
-        await loadScript(
-          "https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js",
-        )
-        await loadScript(
-          "https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js",
-        )
+        await loadScript("https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.js")
 
-        if (!window.Camera || !window.Hands) {
-          throw new Error("MediaPipe Hands / Camera utils not loaded")
-        }
+        const HandsCtor = (window as any).Hands
+        if (!HandsCtor) throw new Error("Hands not loaded")
 
-        const hands = new window.Hands({
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: "user",
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+          audio: false,
+        })
+
+        streamRef.current = stream
+        video.srcObject = stream
+        await video.play()
+
+        const hands = new HandsCtor({
           locateFile: (file: string) =>
-            `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.5/${file}`,
+            `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/${file}`,
         })
 
         hands.setOptions({
@@ -66,29 +70,34 @@ export default function CameraPanel() {
           setGesture(gesture)
         })
 
-        const camera = new window.Camera(video, {
-          onFrame: async () => {
-            await hands.send({ image: video })
-          },
-          width: 1280,
-          height: 720,
-        })
+        const loop = async () => {
+          if (!video.videoWidth || !video.videoHeight) {
+            requestAnimationFrame(loop)
+            return
+          }
 
-        camera.start()
+          canvas.width = video.videoWidth
+          canvas.height = video.videoHeight
+          await hands.send({ image: video })
+          requestAnimationFrame(loop)
+        }
 
-        // store refs so we can clean up later
-        cameraInstance.current = camera
         handsInstance.current = hands
+        void loop()
       } catch (err) {
-        console.error("MediaPipe setup error:", err)
+        console.error("Webcam / MediaPipe setup error:", err)
       }
     }
 
     void setup()
 
     return () => {
-      if (cameraInstance.current) cameraInstance.current.stop()
-      if (handsInstance.current) handsInstance.current.close()
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop())
+      }
+      if (handsInstance.current?.close) {
+        handsInstance.current.close()
+      }
     }
   }, [setGesture])
 
@@ -104,8 +113,6 @@ export default function CameraPanel() {
       <canvas
         ref={canvasRef}
         className="absolute inset-0"
-        width={1280}
-        height={720}
       />
       <div className="absolute right-4 top-4">
         <Hand className="h-6 w-6 text-white drop-shadow-md" />
