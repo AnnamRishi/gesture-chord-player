@@ -10,6 +10,7 @@ interface Store {
   currentChord: ChordDefinition | null
   setGesture: (gesture: GestureSnapshot) => void
   setInstrument: (instrument: InstrumentName) => void
+  setCurrentChord: (currentChord: ChordDefinition) => void
 }
 
 export const useStore = create<Store>((set) => ({
@@ -21,4 +22,5 @@ export const useStore = create<Store>((set) => ({
   currentChord: null,
   setGesture: (gesture) => set({ gesture }),
   setInstrument: (instrument) => set({ instrument }),
+  setCurrentChord: (currentChord) => set({ currentChord }),
 }))

@@ -6,22 +6,25 @@ export default function NowPlaying() {
 
   return (
     <div className="panel p-6">
-      <h3 className="text-xl font-bold mb-6">Now Playing</h3>
+      <h3 className="mb-6 text-xl font-bold">Now Playing</h3>
       {currentChord ? (
         <div className="space-y-4">
-          <div className="text-3xl font-bold bg-gradient-to-r from-accent to-accent-2 bg-clip-text text-transparent">
+          <div className="bg-gradient-to-r from-[var(--accent)] to-[var(--accent-2)] bg-clip-text text-3xl font-bold text-transparent">
             {currentChord.name}
           </div>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex flex-wrap gap-2">
             {currentChord.notes.map((note: string) => (
-              <span key={note} className="px-3 py-1 bg-accent/20 rounded-full text-sm font-mono">
+              <span
+                key={note}
+                className="rounded-full bg-[var(--accent)]/20 px-3 py-1 font-mono text-sm"
+              >
                 {note}
               </span>
             ))}
           </div>
         </div>
       ) : (
-        <div className="text-muted text-center py-8">Raise a finger to play</div>
+        <div className="py-8 text-center text-[var(--muted)]">Raise a finger to play</div>
       )}
     </div>
   )

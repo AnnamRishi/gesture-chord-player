@@ -3,9 +3,8 @@ import { InstrumentName } from "@/types"
 
 let currentSynth: Tone.PolySynth | null = null
 
-export function getInstrument(name: InstrumentName): Tone.PolySynth {
+export function getInstrument(_: InstrumentName): Tone.PolySynth {
   if (currentSynth) currentSynth.dispose()
-
   currentSynth = new Tone.PolySynth(Tone.Synth).toDestination()
   return currentSynth
 }

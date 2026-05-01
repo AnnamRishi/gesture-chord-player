@@ -1,19 +1,29 @@
-import { Music } from "lucide-react"
+"use client"
+import { motion } from "framer-motion"
+import { Music4, Sparkles } from "lucide-react"
 
 export function Header() {
   return (
-    <header className="bg-surface-2/50 backdrop-blur-md border-b border-border px-6 py-4">
+    <motion.header
+      initial={{ opacity: 0, y: -12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5 md:px-6"
+    >
       <div className="flex items-center gap-3">
-        <div className="p-3 bg-accent/10 rounded-2xl">
-          <Music className="w-6 h-6 text-accent" />
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
+          <Music4 className="h-5 w-5 text-[var(--accent)]" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-accent to-accent-2 bg-clip-text text-transparent">
-            Gesture Chord Player
-          </h1>
-          <p className="text-muted text-sm">Hand tracking + Web Audio</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-[var(--muted)]">
+            Gesture Music Lab
+          </p>
+          <h1 className="text-2xl font-semibold">Chord Player</h1>
         </div>
       </div>
-    </header>
+      <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm text-[var(--muted)] md:flex">
+        <Sparkles className="h-4 w-4 text-[var(--accent)]" />
+        Camera, chords, and strumming in one client app
+      </div>
+    </motion.header>
   )
 }
