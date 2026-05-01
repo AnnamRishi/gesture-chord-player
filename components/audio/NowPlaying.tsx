@@ -13,7 +13,7 @@ export default function NowPlaying() {
             {currentChord.name}
           </div>
           <div className="flex gap-2 flex-wrap">
-            {currentChord.notes.map(note => (
+            {currentChord.notes.map((note: string) => (
               <span key={note} className="px-3 py-1 bg-accent/20 rounded-full text-sm font-mono">
                 {note}
               </span>
